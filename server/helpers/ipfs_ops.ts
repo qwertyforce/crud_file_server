@@ -39,7 +39,7 @@ async function sync_to_ipfs() {
     }
 
     for (const file_name of thumbnails_folder_ipfs) {
-        if (!images_folder.includes(file_name)) {
+        if (!thumbnails_folder.includes(file_name)) {
             console.log(`Removing thumbnails/${file_name}`)
             await rm_file(`/ipfs_main/thumbnails/${file_name}`)
         }
@@ -59,7 +59,7 @@ async function bootstrap() {
     try {
         const dir_exists = await axios.post("http://127.0.0.1:5001/api/v0/files/ls?arg=/ipfs_main", {}, { validateStatus: null })
         if (dir_exists.data?.Type === "error") {
-            fs.mkdir(config.data_path)
+            await fs.mkdir(config.data_path)
             const create_dir1 = await axios.post("http://127.0.0.1:5001/api/v0/files/mkdir?arg=/ipfs_main", {}, { validateStatus: null })
             if (create_dir1.data?.Type !== "error") {
                 const create_dir2 = await axios.post("http://127.0.0.1:5001/api/v0/files/mkdir?arg=/ipfs_main/thumbnails", {}, { validateStatus: null })
@@ -68,8 +68,8 @@ async function bootstrap() {
                     console.log("can't create subfolders")
                     process.exit()
                 }
-                fs.mkdir(path.join(config.data_path, "images"))
-                fs.mkdir(path.join(config.data_path, "thumbnails"));
+                await fs.mkdir(path.join(config.data_path, "images"))
+                await fs.mkdir(path.join(config.data_path, "thumbnails"));
                 const folder_hash = await get_root_folder_hash()
                 await pin_file(folder_hash)
                 console.log("bootstrap completed")
